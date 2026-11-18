@@ -86,8 +86,7 @@ app.use(express.static(path.join(__dirname, '..', 'frontend'), { extensions: ['h
 
 app.use(errorHandler);
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+const port = Number(process.env.PORT) || 3000;
 
 /* Optional HTTPS. Browsers only allow GPS location (and Google sign-in) on https:// pages or localhost, so a plain
    http://192.168.x.x:3000 or http tunnel loses both. Set SSL_KEY_FILE and SSL_CERT_FILE (e.g. made with mkcert) to serve https directly. */
