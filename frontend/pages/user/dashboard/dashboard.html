@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script>try{if(localStorage.getItem("tunton_side")==="min")document.documentElement.classList.add("side-min")}catch(e){}</script>
+  <title>Dashboard | TunTon</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+  <link rel="stylesheet" href="../../../css/style.css">
+  <link rel="icon" type="image/png" href="../../../assets/logo/tunton-paw.png">
+  <link rel="stylesheet" href="user.css">
+  <script src="../../../js/theme.js"></script>
+</head>
+<body>
+<div class="dash">
+  <div id="app-nav"></div>
+
+  <div class="dash-main">
+    <main>
+      <section class="view" id="view-map">
+        <div class="view-head view-head--dashboard">
+          <div>
+            <h1>Welcome back, <span id="dashboard-name">there</span>!</h1>
+            <p>See the latest pet reports near you and help bring pets home.</p>
+          </div>
+          <div class="dashboard-actions" aria-label="Quick actions">
+            <a class="btn btn-small" href="add-report.html">Add a pet report</a>
+            <a class="dashboard-link" href="reports.html">All reports <span aria-hidden="true">&rarr;</span></a>
+          </div>
+        </div>
+
+        <!-- One toolbar row: search, filter, radius, location -->
+        <div class="map-bar">
+          <label class="map-search">
+            <svg class="ico" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+            <input type="search" id="q" placeholder="Search name, breed, color or barangay" autocomplete="off" aria-label="Search reports">
+          </label>
+          <div class="chip-row" role="group" aria-label="Filter reports">
+            <button type="button" class="fchip is-on" data-filter="all" aria-pressed="true">All</button>
+            <button type="button" class="fchip" data-filter="lost" aria-pressed="false">Missing</button>
+            <button type="button" class="fchip" data-filter="found" aria-pressed="false">Found</button>
+          </div>
+          <div class="map-actions">
+            <label class="radius-pick">
+              <select id="radius" aria-label="Show reports within">
+                <option value="0.25">Within 250 m</option><option value="0.5">Within 500 m</option><option value="1">Within 1 km</option><option value="2" selected>Within 2 km</option><option value="3">Within 3 km</option><option value="all">All of Dagupan</option>
+              </select>
+            </label>
+            <button type="button" class="btn btn-small" id="locate">My location</button>
+          </div>
+        </div>
+        <p class="map-status"><span id="status">Finding your location&hellip;</span> <span class="dot-sep" aria-hidden="true">&bull;</span> <b id="count"></b></p>
+
+        <!-- Two-column grid: results panel (left) + map (right) -->
+        <div class="map-grid">
+          <aside class="map-side" id="side" aria-label="Reports">
+            <div class="side-body" id="side-body" aria-live="polite">
+              <!-- Placeholder until the first results are drawn (dashboard.js replaces it) -->
+              <ul class="sk-vlist" aria-hidden="true">
+                <li class="sk-vcard"><span class="sk sk-thumb"></span><div class="sk-info"><span class="sk sk-line sk-line--title"></span><span class="sk sk-line sk-line--mid"></span><span class="sk sk-line sk-line--short"></span></div></li>
+                <li class="sk-vcard"><span class="sk sk-thumb"></span><div class="sk-info"><span class="sk sk-line sk-line--title"></span><span class="sk sk-line sk-line--mid"></span><span class="sk sk-line sk-line--short"></span></div></li>
+                <li class="sk-vcard"><span class="sk sk-thumb"></span><div class="sk-info"><span class="sk sk-line sk-line--title"></span><span class="sk sk-line sk-line--mid"></span><span class="sk sk-line sk-line--short"></span></div></li>
+                <li class="sk-vcard"><span class="sk sk-thumb"></span><div class="sk-info"><span class="sk sk-line sk-line--title"></span><span class="sk sk-line sk-line--mid"></span><span class="sk sk-line sk-line--short"></span></div></li>
+              </ul>
+            </div>
+          </aside>
+          <div class="map-wrap">
+            <div id="map" role="application" aria-label="Map of lost pet reports"></div>
+            <div class="map-skel" id="map-skel" aria-hidden="true"><span>Loading map&hellip;</span></div>
+            <div class="legend" aria-label="Map legend">
+              <span><i style="background:var(--alert)"></i>Lost</span>
+              <span><i style="background:var(--leaf)"></i>Potentially found</span>
+              <span><i style="background:#2f7bf0"></i>You</span>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+</div>
+
+<script src="js/sidebar.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="js/common.js"></script>
+<script src="js/notifications.js"></script>
+<script src="js/dashboard.js"></script>
+</body>
+</html>

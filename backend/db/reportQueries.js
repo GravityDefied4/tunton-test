@@ -1,0 +1,125 @@
+/* Shared report queries (plan 4.3 task 6: radius search, candidate lookup, per-barangay).
+   Reports are read through one projection. Contact details (phone, Facebook link, poster email) are
+   included so logged-in users can reach the owner / finder (the routes require login). Points are built with
+   ST_GeomFromText('POINT(lng lat)', 4326, 'axis-order=long-lat') because MySQL 8 reads
+   SRID 4326 coordinates as lat,lng unless told otherwise. */
+const pool = require('./pool');
+const { splitColors, isUnknownBreed, norm } = require('../services/matching');
+
+const FROM = `FROM pet_reports r
+  LEFT JOIN barangays bg ON bg.barangay_id = r.barangay_id
+  LEFT JOIN users ow ON ow.user_id = r.user_id`;   // ow = poster: only first name + picture are exposed (see hydrate)
+
+/* species, breed and color are plain text columns of pet_reports (no lookup tables). contact (one box: a phone number OR an
+   email) / facebook_profile_link on the report and the poster's email are the contact details shown on the report page.
+   flag_reason is the admin's reason for flagging the report (pet_reports.flag_reason); it is only handed to the poster and admins (see hydrate). */
+const COLS = `r.report_id, r.user_id, r.report_type, r.pet_name, r.species, r.breed, r.color, r.size, r.sex, r.markings,
+  r.description, r.event_date, r.lat, r.lng, r.barangay_id, bg.name AS barangay, r.search_radius_km,
+  r.status, r.created_at, r.updated_at, r.contact, r.facebook_profile_link, r.flag_reason AS _flag_reason,
+  ow.full_name AS _owner_full_name, ow.picture_url AS _owner_picture, ow.email AS _owner_email,
+  (SELECT l.action FROM activity_logs l
+    WHERE l.target_table = 'pet_reports' AND l.target_id = r.report_id
+      AND l.action IN ('report_flagged_fraud', 'report_flagged_ai_generated')
+    ORDER BY l.log_id DESC LIMIT 1) AS review_flag,
+  (SELECT GROUP_CONCAT(DISTINCT l.action ORDER BY l.action SEPARATOR ',') FROM activity_logs l
+    WHERE l.target_table = 'pet_reports' AND l.target_id = r.report_id
+      AND l.action IN ('report_flagged_fraud', 'report_flagged_ai_generated')) AS _flags,
+  (SELECT JSON_UNQUOTE(JSON_EXTRACT(l.details, '$.reason')) FROM activity_logs l
+    WHERE l.target_table = 'pet_reports' AND l.target_id = r.report_id AND l.action = 'report_flagged_fraud'
+    ORDER BY l.log_id DESC LIMIT 1) AS _flag_reason_fraud,
+  (SELECT JSON_UNQUOTE(JSON_EXTRACT(l.details, '$.reason')) FROM activity_logs l
+    WHERE l.target_table = 'pet_reports' AND l.target_id = r.report_id AND l.action = 'report_flagged_ai_generated'
+    ORDER BY l.log_id DESC LIMIT 1) AS _flag_reason_ai`;   // admin moderation flags: a report can carry both (see adminController.flagReport)
+
+const POINT = "ST_GeomFromText(?, 4326, 'axis-order=long-lat')";
+const pointWkt = (lat, lng) => `POINT(${Number(lng)} ${Number(lat)})`;   // numbers only: no injection path
+const DIST_KM = `(ST_Distance_Sphere(r.location, ${POINT}) / 1000)`;
+
+const photoUrl = file => `/uploads/reports/${file}`;
+
+/* Barangay for a pin: the polygon that contains it (when boundaries are loaded), otherwise the
+   nearest barangay centre. schema.sql allows boundary to be NULL, so both rules are needed. */
+async function nearestBarangayId(lat, lng, db = pool) {
+  const wkt = pointWkt(lat, lng);
+  const [inside] = await db.query(
+    `SELECT barangay_id FROM barangays WHERE boundary IS NOT NULL AND ST_Contains(boundary, ${POINT}) LIMIT 1`, [wkt]);
+  if (inside[0]) return inside[0].barangay_id;
+  const [rows] = await db.query(
+    `SELECT barangay_id FROM barangays ORDER BY ST_Distance_Sphere(center, ${POINT}) LIMIT 1`, [wkt]);
+  return rows[0]?.barangay_id ?? null;
+}
+
+/* Who posted a report, shown as "Posted by <first name>". Contact details are returned separately (phone, facebook_profile_link, owner_email).
+   picture_url is a Google URL (http...) or the file name of an uploaded avatar (public, served from /uploads/avatars). */
+const ownerFirstName = full => (full || '').trim().split(/\s+/)[0] || '';
+const ownerPictureUrl = p => !p ? '' : /^https?:\/\//i.test(p) ? p : `/uploads/avatars/${encodeURIComponent(p)}`;
+
+/* Turn raw rows into API objects: adds photos with one extra query. */
+async function hydrate(rows, viewerId = null, db = pool, viewerIsAdmin = false) {
+  if (!rows.length) return [];
+  const ids = rows.map(r => r.report_id);
+  const [photos] = await db.query(
+    'SELECT photo_id, report_id, file_path, is_primary FROM report_photos WHERE report_id IN (?) ORDER BY is_primary DESC, photo_id', [ids]);
+  const by = (list, id) => list.filter(x => x.report_id === id);
+  return rows.map(r => {
+    const { report_id, report_type, _owner_full_name, _owner_picture, _owner_email, _flags, _flag_reason, _flag_reason_fraud, _flag_reason_ai, ...rest } = r;
+    const mine = viewerId != null && String(r.user_id) === String(viewerId);
+    const seesReason = mine || viewerIsAdmin;
+    const ph = by(photos, report_id).map(p => ({ photo_id: p.photo_id, url: photoUrl(p.file_path), is_primary: !!p.is_primary }));
+    return {
+      id: report_id, type: report_type, ...rest,
+      owner_name: ownerFirstName(_owner_full_name),
+      owner_picture: ownerPictureUrl(_owner_picture),
+      owner_email: _owner_email || '',
+      breed_unknown: isUnknownBreed(r.breed),
+      distance_km: r.distance_km === undefined ? undefined : Math.round(r.distance_km * 100) / 100,
+      colors: splitColors(r.color).map((name, i) => ({ name, is_primary: i === 0 })),   // derived from the single color text column
+      photos: ph,
+      primary_photo: ph[0]?.url ?? null,
+      is_mine: mine,
+      /* Admin flag: everyone sees that a report is flagged; only the poster (and admins) also see the admin's reason.
+         flag_reason is the value stored on the report row; reports flagged before that column was used fall back to the audit log. */
+      review_flag: r.review_flag || null,                       // latest flag (kept for older callers)
+      review_flags: _flags ? String(_flags).split(',') : [],    // every flag on the report, e.g. both fraud and AI-generated
+      flag_reason: seesReason ? (_flag_reason || _flag_reason_ai || _flag_reason_fraud || null) : null,
+      flag_reasons: seesReason ? { report_flagged_fraud: _flag_reason_fraud || '', report_flagged_ai_generated: _flag_reason_ai || '' } : {}
+    };
+  });
+}
+
+/* Generic finder. where/params are caller-built fragments using r., bg. aliases.
+   origin {lat,lng} adds distance_km; maxKm filters by it. Removed reports are hidden unless includeRemoved. */
+async function findReports({ where = [], params = [], origin, maxKm, orderBy = 'r.event_date DESC, r.report_id DESC',
+  limit = 50, offset = 0, includeRemoved = false, extraCols = '', extraJoins = '', viewerId = null, viewerIsAdmin = false } = {}, db = pool) {
+  const conds = [...where], condParams = [...params];
+  if (!includeRemoved) conds.push("r.status <> 'removed'");
+  if (origin && maxKm != null) { conds.push(`${DIST_KM} <= ?`); condParams.push(pointWkt(origin.lat, origin.lng), maxKm); }
+  const whereSql = conds.length ? `WHERE ${conds.join(' AND ')}` : '';
+
+  const distCol = origin ? `, ${DIST_KM} AS distance_km` : '';
+  const selParams = origin ? [pointWkt(origin.lat, origin.lng)] : [];
+  const [rows] = await db.query(
+    `SELECT ${COLS}${distCol}${extraCols ? ', ' + extraCols : ''} ${FROM} ${extraJoins} ${whereSql} ORDER BY ${orderBy} LIMIT ? OFFSET ?`,
+    [...selParams, ...condParams, limit, offset]);
+  const [[{ total }]] = await db.query(`SELECT COUNT(*) AS total ${FROM} ${extraJoins} ${whereSql}`, condParams);
+  return { items: await hydrate(rows, viewerId, db, viewerIsAdmin), total, limit, offset };
+}
+
+async function findReportById(id, { viewerId = null, includeRemoved = false, viewerIsAdmin = false } = {}, db = pool) {
+  const { items } = await findReports({ where: ['r.report_id = ?'], params: [id], limit: 1, includeRemoved, viewerId, viewerIsAdmin }, db);
+  return items[0] || null;
+}
+
+/* Raw attribute rows the matching engine needs (text species / breed / color, location, status). */
+async function loadForMatching(reportId, db = pool) {
+  const [rows] = await db.query(
+    `SELECT r.report_id, r.user_id, r.report_type AS type, r.species, r.breed, r.color,
+            r.size, r.sex, r.markings, r.event_date, r.lat, r.lng, r.search_radius_km, r.status
+       FROM pet_reports r WHERE r.report_id = ?`, [reportId]);
+  if (!rows[0]) return null;
+  const color_names = splitColors(rows[0].color);
+  return { ...rows[0], breed_unknown: isUnknownBreed(rows[0].breed), species: norm(rows[0].species),
+    primary_color: color_names[0] ?? null, color_names };
+}
+
+module.exports = { pointWkt, POINT, DIST_KM, photoUrl, nearestBarangayId, hydrate, findReports, findReportById, loadForMatching };

@@ -1,0 +1,418 @@
+/* Map view and Leaflet overrides */
+/* ---------- Layout: header, one toolbar row, then a 2-column grid (results | map) ---------- */
+.view-head--dashboard {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.view-head--dashboard > div:first-child { min-width: 0; }
+.view-head--dashboard h1 { margin: 0 0 .35rem; }
+.view-head--dashboard p { margin: 0; }
+.view-head--dashboard h1 #dashboard-name { color: var(--heading); }
+
+.dashboard-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: .75rem 1.25rem;
+  flex: none;
+}
+
+.dashboard-link {
+  color: var(--heading);
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.dashboard-link:hover { text-decoration: underline; }
+.dashboard-link span { padding-left: .2rem; }
+
+.map-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .75rem 1rem;
+  margin: 0 0 .75rem;
+}
+
+.map-search {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  flex: 1 1 280px;
+  min-width: 0;
+  padding: .15rem 1.1rem;
+  background: var(--surface);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow);
+  border: 2px solid transparent;
+}
+
+.map-search:focus-within { border-color: var(--leaf); }
+.map-search .ico { width: 20px; height: 20px; color: var(--muted); flex: none; }
+.map-search input { flex: 1; min-width: 0; border: 0; outline: 0; background: none; font: inherit; font-weight: 600; padding: .65rem 0; color: var(--ink); }
+
+/* Filter chips share one soft pill, so they read as a single control */
+.chip-row {
+  display: flex;
+  gap: .25rem;
+  padding: .25rem;
+  background: var(--surface);
+  border-radius: 999px;
+  box-shadow: var(--shadow);
+}
+
+.fchip {
+  padding: .45em 1.1em;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-weight: 700;
+  font-size: .92rem;
+  cursor: pointer;
+}
+
+.fchip:hover { background: var(--surface-hover); }
+.fchip.is-on { background: var(--forest-dark); color: var(--white); }
+
+.map-actions { display: flex; align-items: center; gap: .75rem; }
+.radius-pick { display: flex; align-items: center; }
+.radius-pick select { padding: .6em 1em; border: 0; border-radius: var(--radius-sm); background: var(--surface); font: inherit; font-weight: 700; font-size: .92rem; color: var(--ink); box-shadow: var(--shadow); }
+
+.map-status { margin: 0 .4rem 1.25rem; font-weight: 700; font-size: .9rem; color: var(--muted); max-width: none; }
+.map-status b { color: var(--heading); }
+.dot-sep { margin: 0 .3rem; }
+
+.map-grid {
+  display: grid;
+  grid-template-columns: 380px minmax(0, 1fr);
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.map-wrap { position: relative; min-width: 0; }
+
+#map {
+  height: clamp(420px, 68vh, 640px);
+  border-radius: 20px;
+  box-shadow: var(--shadow);
+  position: relative;
+  z-index: 0;
+}
+
+/* Legend floats on the map's bottom-left corner, like Google Maps */
+.legend {
+  position: absolute;
+  left: 10px;
+  bottom: 24px;
+  z-index: 500;
+  display: flex;
+  flex-wrap: wrap;
+  gap: .2rem .9rem;
+  max-width: calc(100% - 20px);
+  padding: .4rem .8rem;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--surface) 94%, transparent);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, .2);
+  font-weight: 700;
+  font-size: .8rem;
+}
+
+.legend i {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: .4em;
+}
+
+/* "Zoom to Dagupan" button under the zoom +/- */
+.leaflet-bar .map-ctl, .map-ctl {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 2px solid rgba(0, 0, 0, .2);
+  border-radius: 4px;
+  background: var(--surface);
+  color: var(--heading);
+  cursor: pointer;
+}
+.map-ctl:hover { background: var(--surface-hover); }
+.map-ctl .ico { width: 18px; height: 18px; }
+
+.pin {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+  border: 3px solid #fff;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, .35);
+}
+
+.pin span {
+  display: grid;
+  transform: rotate(45deg);
+  color: #fff;
+}
+
+.pin .ico {
+  width: 17px;
+  height: 17px;
+}
+
+.pin--lost {
+  background: var(--alert);
+}
+
+.pin--found {
+  background: var(--leaf);
+}
+
+.me {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #2f7bf0;
+  border: 3px solid #fff;
+  box-shadow: 0 0 0 6px rgba(47, 123, 240, .25);
+}
+
+.pop {
+  width: 200px;
+  font-family: var(--font-body);
+}
+
+.pop img {
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 12px;
+}
+
+.pop h3 {
+  font-size: 1.05rem;
+  margin: .5rem 0 .15rem;
+}
+
+.pop p {
+  margin: 0 0 .2rem;
+  font-size: .9rem;
+  max-width: none;
+}
+
+/* Small map used to pick a location inside the report forms */
+.pick {
+  height: clamp(340px, 50vh, 460px);   /* tall enough for the whole city to fill the box */
+  border-radius: 20px;
+  overflow: hidden;
+  position: relative;
+  z-index: 0;
+  border: 2px solid var(--line);
+}
+
+/* style.css sets img { max-width: 100% }, which breaks Leaflet's map tiles */
+.leaflet-container img,
+.leaflet-container .leaflet-tile,
+.leaflet-container .leaflet-marker-icon {
+  max-width: none !important;
+  max-height: none !important;
+}
+
+.leaflet-container {
+  font-family: var(--font-body);
+}
+
+/* ---------- Results panel (left column) ---------- */
+.map-side {
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  border-radius: 20px;
+  box-shadow: var(--shadow);
+  height: clamp(420px, 68vh, 640px);   /* same height as the map so the two columns line up */
+  overflow: hidden;
+}
+
+.side-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 1.25rem;
+}
+
+.map-side h2 { margin: 0; font-size: 1.15rem; }
+.map-side h3 { margin: 1rem 0 .3rem; font-size: 1rem; }
+.map-side p { max-width: none; }
+.side-title small { font-size: .85rem; padding: .1em .6em; border-radius: var(--radius-sm); background: var(--mint); }
+.side-empty { text-align: center; padding: 2rem 0; }
+
+/* list state: YouTube-style cards (thumbnail with badge, title, meta lines) */
+.vlist { list-style: none; margin: 1rem 0 0; padding: 0; display: grid; gap: .6rem; }
+
+.vcard {
+  display: grid;
+  grid-template-columns: 124px 1fr;
+  gap: 1rem;
+  align-items: center;
+  width: 100%;
+  padding: .6rem;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  border-radius: 14px;
+  cursor: pointer;
+}
+
+.vcard:hover, .vcard:focus-visible { background: var(--surface-hover); outline: 0; }
+
+.vthumb { position: relative; aspect-ratio: 16 / 10; border-radius: 12px; overflow: hidden; background: var(--mint); }
+.vthumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+.vbadge {
+  position: absolute;
+  right: 5px;
+  bottom: 5px;
+  padding: .1em .55em;
+  border-radius: 6px;
+  font-style: normal;
+  font-weight: 800;
+  font-size: .68rem;
+  color: #fff;
+  background: rgba(217, 54, 54, .95);
+}
+.vbadge--found { background: rgba(15, 107, 63, .95); }
+
+.vinfo { display: grid; align-content: center; gap: .2rem; min-width: 0; }
+.vtitle { font-size: .98rem; line-height: 1.25; display: -webkit-box; line-clamp: 2; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.vmeta { font-size: .8rem; color: var(--muted); font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* detail state */
+.side-back {
+  position: sticky;
+  top: -1rem;
+  z-index: 2;
+  width: calc(100% + 2rem);
+  margin: -1rem -1rem .6rem;
+  padding: .7rem 1rem;
+  background: var(--surface);
+  text-align: left;
+  border: 0;
+  font: inherit;
+  font-weight: 700;
+  color: var(--heading);
+  cursor: pointer;
+}
+
+.side-back:hover { text-decoration: underline; }
+.side-photo img { width: 100%; aspect-ratio: 16 / 9; max-height: 170px; height: auto; object-fit: cover; border-radius: 16px; }
+.side-thumbs { display: flex; gap: .4rem; margin: .4rem 0 .6rem; }
+.side-thumbs button { width: 48px; height: 48px; padding: 0; border: 2px solid var(--line); border-radius: 10px; overflow: hidden; cursor: pointer; background: none; }
+.side-thumbs img { width: 100%; height: 100%; object-fit: cover; }
+.side-name { margin-top: .5rem; }
+.side-text { margin: 0; font-size: .95rem; white-space: pre-line; }
+.fact-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .5rem; }
+.fact { display: grid; gap: .05rem; padding: .5rem .7rem; border-radius: 12px; background: var(--surface-tint); }
+.fact span { font-size: .75rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+.fact b { font-size: .95rem; }
+.side-contact { font-weight: 700; color: var(--heading); word-break: break-word; }
+.side-actions { display: flex; flex-wrap: wrap; gap: .6rem; margin-top: 1.1rem; }
+
+/* the selected pin on the map */
+.leaflet-marker-icon.is-hover .pin { transform: rotate(-45deg) scale(1.2); }
+.leaflet-marker-icon.is-selected .pin {
+  box-shadow: 0 0 0 5px rgba(255, 196, 0, .95), 0 3px 10px rgba(0, 0, 0, .4);
+}
+
+/* tablet and phone: map first, results grid below it */
+@media (max-width: 1000px) {
+  .view-head--dashboard { align-items: flex-start; }
+  .map-grid { grid-template-columns: 1fr; }
+  .map-wrap { order: -1; }
+  #map { height: clamp(280px, 48vh, 400px); }
+  .map-side { height: auto; }
+  .side-body { overflow: visible; }
+  .vlist { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: .6rem; }
+  .vcard { grid-template-columns: 1fr; }   /* big YouTube-style thumbnail above the text */
+  .vthumb { aspect-ratio: 16 / 9; }
+}
+
+@media (max-width: 640px) {
+  .view-head--dashboard { display: grid; gap: 1rem; margin-bottom: 1.5rem; }
+  .dashboard-actions { justify-content: flex-start; }
+  .map-actions { flex: 1 1 100%; }
+  .radius-pick { flex: 1; }
+  .radius-pick select { width: 100%; }
+}
+
+/* Dagupan City highlight */
+.legend i.legend-city {
+  border-radius: 3px;
+  background: rgba(47, 160, 90, .18);
+  border: 2px solid #0f6b3f;
+  width: 16px;
+  height: 12px;
+  box-sizing: border-box;
+}
+
+.leaflet-tooltip.city-label {
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  color: #0f6b3f;
+  font-weight: 800;
+  font-size: 1.1rem;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  text-shadow: 0 0 4px #fff, 0 0 4px #fff, 0 0 4px #fff;
+  pointer-events: none;
+}
+
+.leaflet-tooltip.city-label::before {
+  display: none;
+}
+
+.zoom-far .city-label { display: none; }   /* hide the label when the whole region is in view */
+
+
+/* Leaflet's own white UI follows the theme */
+.leaflet-popup-content-wrapper,
+.leaflet-popup-tip {
+  background: var(--surface);
+  color: var(--ink);
+}
+
+.leaflet-container a.leaflet-popup-close-button { color: var(--muted); }
+.leaflet-bar a,
+.leaflet-bar a:hover {
+  background-color: var(--surface);
+  color: var(--ink);
+  border-bottom-color: var(--line);
+}
+
+.leaflet-bar a:hover { background-color: var(--surface-hover); }
+.leaflet-bar a.leaflet-disabled { background-color: var(--surface-tint); color: var(--muted); }
+
+.leaflet-control-attribution {
+  background: color-mix(in srgb, var(--surface) 80%, transparent);
+  color: var(--muted);
+}
+
+.leaflet-control-attribution a { color: var(--heading); }
+.leaflet-container { background: var(--surface-tint); }
+
+/* Dark theme: the basemap tiles are the one thing CSS can't recolor, so a lit frame keeps them from glaring */
+:root[data-theme="dark"] #map,
+:root[data-theme="dark"] .pick,
+:root[data-theme="dark"] #d-map { box-shadow: 0 0 0 1px var(--line), var(--shadow); }

@@ -1,0 +1,76 @@
+/* Dashboard shell: sidebar column + main column, mobile top bar and scrim */
+.dash {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  min-height: 100vh;
+  transition: grid-template-columns .25s ease;
+}
+
+.dash-main {
+  min-width: 0;
+}
+
+.dash-top {
+  display: none;
+}
+
+.dash-top-actions {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+}
+
+.scrim {
+  display: none;
+}
+
+@media (max-width: 1000px) {
+  .dash {
+    grid-template-columns: 1fr;
+  }
+
+  html.side-open { overflow: hidden; }
+
+  .scrim.open {
+    position: fixed;
+    inset: 0;
+    z-index: 1100;
+    background: rgba(10, 79, 46, .55);
+  }
+
+  .dash-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    padding: .6rem 4%;
+    background: linear-gradient(90deg, var(--forest-dark), var(--forest));
+  }
+
+  .dash-top img {
+    height: 30px;
+    width: auto;
+  }
+}
+
+/* Page transition between dashboard tabs: content rises in on arrival and fades out on leaving
+   (html.is-leaving is set by js/sidebar.js just before it navigates). */
+.dash-main main {
+  animation: page-in .4s cubic-bezier(.2, .7, .2, 1) backwards;
+  transition: opacity .2s ease, transform .2s ease;
+}
+
+html.is-leaving .dash-main main {
+  opacity: 0;
+  transform: translateY(8px);
+}
+
+@keyframes page-in {
+  from { opacity: 0; transform: translateY(14px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dash-main main { animation: none; transition: none; }
+}

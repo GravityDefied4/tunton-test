@@ -1,0 +1,244 @@
+/* ---------- Mobile fixes ----------
+   1. Uploaded-file rows can no longer push past their container.
+   2. Cards (report type, steps, upload box, report list) are compact on phones.
+   3. Cleaner dashboard: no "Add a pet report" / "All reports" (the bottom bar has both). */
+
+/* --- 1. File rows: let every level shrink so long names truncate with "…" --- */
+.form .files,
+.step-body > .files { min-width: 0; max-width: 100%; }
+.file { min-width: 0; max-width: 100%; overflow: hidden; }
+.file-open { min-width: 0; overflow: hidden; }
+.file-name { min-width: 0; }
+
+@media (max-width: 640px) {
+  .file { gap: .35rem; padding: .3rem .4rem .3rem .3rem; border-width: 1px; border-radius: 14px; }
+  .file-open { display: grid; grid-template-columns: 48px minmax(0, 1fr); grid-template-rows: auto auto;
+    column-gap: .6rem; row-gap: 0; align-items: center; padding: .2rem .3rem; }
+  .file-thumb { grid-row: 1 / span 2; width: 48px; height: 48px; }
+  .file-open .file-name { grid-column: 2; font-size: .9rem; }
+  .file-open .file-size { grid-column: 2; font-size: .75rem; }
+  /* the "Main photo" badge becomes a small tag so it never squeezes the name */
+  .file-main { padding: .1em .55em; font-size: .68rem; white-space: nowrap; }
+  .file-remove { width: 30px; height: 30px; font-size: 1.3rem; }
+}
+
+/* --- 2. Smaller cards on phones --- */
+@media (max-width: 640px) {
+  /* Add pet report: "I lost my pet" / "I found a pet" */
+  main.is-choosing { min-height: 0; justify-content: flex-start; }
+  main.is-choosing .type-pick { gap: .75rem; margin-top: 1rem; }
+  main.is-choosing .type-card {
+    grid-template-columns: auto minmax(0, 1fr);
+    justify-items: start; text-align: left;
+    column-gap: .85rem; row-gap: .1rem;
+    padding: .9rem 1rem;
+  }
+  main.is-choosing .type-card svg { grid-row: 1 / span 2; width: 2.8rem; height: 2.8rem; padding: .65rem; margin: 0; }
+  main.is-choosing .type-card b { font-size: 1.1rem; }
+  main.is-choosing .type-card small { font-size: .85rem; line-height: 1.35; }
+  .type-card { padding: .8rem 1rem; }
+
+  /* Wizard step card */
+  .step { padding: .9rem .85rem; border-radius: 20px; }
+  .step-head { margin-bottom: .85rem; padding-bottom: .75rem; gap: .65rem; }
+  .step-head h2 { font-size: 1.1rem; }
+  .step-head p { font-size: .85rem; }
+  .step-body { gap: .85rem; }
+
+  /* Photo drop box */
+  .form .drop { padding: .9rem 1rem; gap: .3rem; border-width: 2px; }
+  .form .drop .upload-icon { width: 32px; height: 32px; font-size: 1.3rem; }
+  .form .drop .upload-action { padding: .4rem 1rem; font-size: .95rem; }
+  .form .drop b { font-size: .95rem; }
+  .form .drop .upload-hint { font-size: .78rem; }
+  .form .drop .upload-status { font-size: .8rem; padding: .2rem .6rem; }
+}
+
+/* --- 3. Dashboard: cleaner on phones and tablets --- */
+@media (max-width: 1000px) {
+  .view-head--dashboard .dashboard-actions { display: none; }   /* bottom bar already has Report + Reports */
+}
+
+@media (max-width: 640px) {
+  .view-head--dashboard { margin-bottom: .9rem; gap: 0; }
+  .view-head--dashboard h1 { font-size: 1.45rem; margin-bottom: .15rem; }
+  .view-head--dashboard p { font-size: .85rem; line-height: 1.35; }
+
+  /* toolbar: search on top, then filter chips + radius + location on a tidy grid */
+  .map-bar { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: .5rem; margin-bottom: .4rem; }
+  .map-search { grid-column: 1 / -1; padding: 0 .85rem; }
+  .map-search input { padding: .55rem 0; font-size: .9rem; }
+  .chip-row { grid-column: 1 / -1; flex: none; width: 100%; overflow: visible; }
+  .fchip { flex: 1 1 0; padding: .4em .5em; font-size: .85rem; text-align: center; }
+  .map-actions { grid-column: 1 / -1; flex: none; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: .5rem; }
+  .radius-pick select { padding: .5em .8em; font-size: .85rem; }
+  .map-actions .btn { padding: .5em 1em; font-size: .85rem; white-space: nowrap; }
+
+  .map-status { margin: 0 .25rem .6rem; font-size: .78rem; }
+  .map-grid { gap: .9rem; }
+  #map { height: clamp(220px, 34vh, 300px); border-radius: 16px; }
+  .legend { font-size: .7rem; padding: .3rem .6rem; gap: .1rem .6rem; bottom: 20px; }
+
+  /* report list: slim horizontal cards (thumb left, text right) instead of big banners */
+  .vlist { grid-template-columns: 1fr; gap: .5rem; margin-top: .6rem; }
+  .vcard { grid-template-columns: 84px minmax(0, 1fr); gap: .7rem; padding: .5rem; align-items: center; }
+  .vthumb { aspect-ratio: 1 / 1; border-radius: 10px; }
+  .vtitle { font-size: .95rem; }
+  .vmeta { font-size: .78rem; }
+  .vbadge { font-size: .62rem; padding: .1em .45em; }
+  .side-title { font-size: 1.05rem; margin: 0; }
+  .sk-vlist { grid-template-columns: 1fr; }
+  .sk-vcard { grid-template-columns: 84px minmax(0, 1fr); }
+  .sk-vcard .sk-thumb { aspect-ratio: 1 / 1; }
+}
+
+/* --- 4. Add pet report: report-type cards, tuned for phones ----------------------------------
+   Two states, two problems:
+   a) Nothing chosen yet  -> the cards were small and left half the screen empty. Now they are big,
+      centred, easy tap targets that share the available height.
+   b) A type is chosen    -> the cards were still big and pushed step 1 off the screen. Now they
+      collapse into a compact two-button switch (icon + title) so the form starts right below.
+   Desktop and tablet (above 640px) are untouched. */
+@media (max-width: 640px) {
+
+  /* a) CHOOSING: large tap targets that fill the screen */
+  main.is-choosing {
+    min-height: calc(100dvh - 3.5rem);          /* viewport minus the top bar; main's own padding keeps it clear of the bottom nav */
+    justify-content: flex-start;
+  }
+  main.is-choosing .view-head p { max-width: 28ch; margin-inline: auto; }
+  main.is-choosing .type-pick {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: repeat(2, minmax(max-content, 1fr));
+    gap: 1rem;
+    max-height: 30rem;
+    margin: 1.25rem auto 0;
+  }
+  main.is-choosing .type-pick .type-card {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    align-content: center;
+    text-align: center;
+    row-gap: .35rem;
+    padding: 1.5rem 1.25rem;
+    border-width: 2px;
+    border-radius: 26px;
+    background: linear-gradient(180deg, var(--white), color-mix(in srgb, var(--tone-soft) 55%, var(--white)));
+  }
+  main.is-choosing .type-pick .type-card svg {
+    width: 4.5rem; height: 4.5rem; padding: 1.1rem;
+    margin: 0 0 .35rem;
+  }
+  main.is-choosing .type-pick .type-card b { font-size: 1.45rem; line-height: 1.15; }
+  main.is-choosing .type-pick .type-card small { font-size: 1rem; line-height: 1.4; max-width: 30ch; }
+
+  /* b) CHOSEN: compact two-button switch, description hidden (the lead text above already says it) */
+  main:not(.is-choosing) .type-pick {
+    grid-template-columns: 1fr 1fr;
+    gap: .6rem;
+    margin: .9rem 0 1rem;
+  }
+  main:not(.is-choosing) .type-pick .type-card {
+    grid-template-columns: auto minmax(0, 1fr);
+    column-gap: .55rem;
+    min-height: 56px;                            /* still a comfortable thumb target */
+    padding: .45rem .7rem .45rem .55rem;
+    border-radius: 18px;
+  }
+  main:not(.is-choosing) .type-pick .type-card svg {
+    grid-row: auto;
+    width: 2.2rem; height: 2.2rem; padding: .5rem;
+  }
+  main:not(.is-choosing) .type-pick .type-card b { font-size: .95rem; line-height: 1.15; }
+  main:not(.is-choosing) .type-pick .type-card small { display: none; }
+  /* no lift on a compact switch: it should feel like a toggle, not a card */
+  main:not(.is-choosing) .type-pick label:hover .type-card { transform: none; }
+}
+
+@media (max-width: 360px) {
+  main:not(.is-choosing) .type-pick .type-card b { font-size: .88rem; }
+  main:not(.is-choosing) .type-pick .type-card svg { display: none; }   /* very narrow phones: text only, no squeeze */
+}
+
+/* --- 5. All reports: phone layout ----------------------------------------------------------
+   - Filters stay pinned under the top bar while you scroll (search, type, species).
+   - Type filter is a real segmented control (the active pill used to shrink to a circle).
+   - Each card is a tidy list row: square photo with rounded corners, up to two lines per detail,
+     reporter line at the bottom, 44px buttons.
+   - The loading skeleton has the same shape, so nothing jumps when the cards arrive.
+   Above 640px nothing changes. */
+@media (max-width: 640px) {
+
+  /* header */
+  .view-head--reports { margin-bottom: .75rem; }
+  .view-head--reports h1 { font-size: 1.5rem; }
+  .rcount {
+    padding: .25rem .7rem; border-radius: 999px;
+    background: var(--surface); box-shadow: var(--shadow);
+    font-size: .8rem; white-space: nowrap;
+  }
+
+  /* pinned filter bar (--topbar-h is measured in reports.js; 4rem is the fallback) */
+  .toolbar--reports {
+    position: sticky; top: var(--topbar-h, 4rem); z-index: 20;
+    display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: .5rem;
+    margin: 0 -1rem .75rem; padding: .5rem 1rem .6rem;
+    background: color-mix(in srgb, var(--page) 94%, transparent);
+    -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+  }
+  .rsearch {
+    grid-column: 1 / -1;
+    min-height: 44px; padding: .55em 1.1em .55em 2.6rem;
+    background: var(--surface) no-repeat 1rem 50% / 1.1rem
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237a8f80' stroke-width='2.2' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='M20 20l-4-4'/%3E%3C/svg%3E");
+    font-size: 1rem;                                  /* 16px: stops iOS zooming in on focus */
+  }
+  .toolbar--reports .chips { grid-column: 1; width: 100%; }
+  .toolbar--reports .chips label { display: flex; flex: 1; min-width: 0; }
+  .toolbar--reports .chips span { flex: 1; display: grid; place-items: center; min-height: 38px; padding: 0 .4em; }
+  .rselect { grid-column: 2; max-width: none; min-height: 46px; font-size: .9rem; }
+
+  /* list */
+  #all-list.pet-list--grid { gap: .65rem; }
+  #all-list .pet-card {
+    grid-template-columns: 104px minmax(0, 1fr);
+    column-gap: .75rem; row-gap: .6rem;
+    padding: .6rem;
+    border-radius: 18px;
+  }
+  #all-list .pet-thumb {
+    width: 104px; height: 104px; min-height: 0;
+    border-radius: 13px; overflow: hidden; align-self: start;
+  }
+  #all-list .pet-body { padding: .1rem 0 0; gap: .2rem; min-height: 104px; }
+  #all-list .pet-body h3 {
+    font-size: 1.05rem;
+    display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden;
+  }
+  #all-list .pet-info li span {
+    display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden;
+  }
+  #all-list .pet-by { margin-top: auto; padding-top: .25rem; }
+  #all-list .pet-actions { padding: 0; grid-template-columns: minmax(0, .85fr) minmax(0, 1.15fr); gap: .5rem; }
+  #all-list .pet-actions > .btn,
+  #all-list .pet-actions > .pet-status { min-height: 2.75rem; font-size: .88rem; }
+
+  /* skeleton: same row layout as the real card */
+  .sk-card {
+    display: grid; grid-template-columns: 104px minmax(0, 1fr); column-gap: .75rem; row-gap: .6rem;
+    padding: .6rem; border-radius: 18px;
+  }
+  .sk-card .sk-thumb { width: 104px; height: 104px; aspect-ratio: auto; border-radius: 13px; }
+  .sk-card .sk-body { padding: .1rem 0 0; gap: .5rem; align-content: start; }
+  .sk-card .sk-actions { grid-column: 1 / -1; padding: 0; gap: .5rem; grid-template-columns: minmax(0, .85fr) minmax(0, 1.15fr); }
+  .sk-card .sk-actions .sk-btn:first-child { width: auto; }
+  .sk-card .sk-btn { height: 2.75rem; }
+}
+
+@media (max-width: 380px) {
+  #all-list .pet-card, .sk-card { grid-template-columns: 88px minmax(0, 1fr); }
+  #all-list .pet-thumb, .sk-card .sk-thumb { width: 88px; height: 88px; }
+  #all-list .pet-body { min-height: 88px; }
+}

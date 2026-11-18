@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Opening your dashboard | TunTon</title>
+  <noscript><meta http-equiv="refresh" content="0; url=dashboard/dashboard.html"></noscript>
+  <script>
+    /* user.html is the entry point for logged-in users. It opens the dashboard
+       (the page with the map) and keeps old links like user.html#profile working. */
+    var pages = { reports: 'reports', lost: 'lost', found: 'found', profile: 'profile' };
+    var page = pages[location.hash.slice(1)] || 'dashboard';
+    location.replace('dashboard/' + page + '.html' + location.search);
+  </script>
+  <script src="../../js/theme.js"></script>
+</head>
+<body>
+  <p>Opening your dashboard&hellip; <a href="dashboard/dashboard.html">Click here if nothing happens.</a></p>
+</body>
+</html>

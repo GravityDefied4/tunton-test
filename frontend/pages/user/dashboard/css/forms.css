@@ -1,0 +1,1305 @@
+/* Report forms (lost / found) */
+.form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.1rem 1.25rem;
+}
+
+.full {
+  grid-column: 1 / -1;
+}
+
+fieldset {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+}
+
+.form label,
+.form legend {
+  display: block;
+  font-weight: 700;
+  margin-bottom: .35rem;
+  padding: 0;
+}
+
+.form input[type=text],
+.form input[type=date],
+.form input[type=url],
+.form select,
+.form textarea {
+  width: 100%;
+  padding: .7em 1em;
+  border: 2px solid var(--line);
+  border-radius: 16px;
+  font: inherit;
+  background: var(--surface);
+  color: var(--ink);
+}
+
+.form input:focus,
+.form select:focus,
+.form textarea:focus {
+  outline: 3px solid var(--leaf);
+  outline-offset: 1px;
+  border-color: var(--leaf);
+}
+
+/* ---------- Validation errors: red border on the field + message right under it ---------- */
+.form input.is-invalid,
+.form select.is-invalid,
+.form textarea.is-invalid,
+.form .pills.is-invalid,
+.form .drop.is-invalid,
+.form .pick.is-invalid,
+.form fieldset.is-invalid .chips span {
+  border-color: var(--danger-text);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--danger-text) 18%, transparent);
+}
+
+.form .drop.is-invalid {
+  background: var(--danger-bg);
+}
+
+/* keep the field red while it is focused, instead of turning green */
+.form input.is-invalid:focus,
+.form select.is-invalid:focus,
+.form textarea.is-invalid:focus,
+.form .pills.is-invalid:focus-within {
+  border-color: var(--danger-text);
+  outline-color: var(--danger-text);
+}
+
+.field-error {
+  display: flex;
+  align-items: flex-start;
+  gap: .4em;
+  margin: .45rem 0 0;
+  color: var(--danger-text);
+  font-size: .88rem;
+  font-weight: 700;
+  line-height: 1.4;
+  animation: field-error-in .18s ease-out;
+}
+.field-error[hidden] { display: none; }
+
+@keyframes field-error-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .field-error { animation: none; }
+}
+
+/* Tag input: words typed in the lost and found forms become pills (see setupPills in report-form.js) */
+.pills {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .4rem;
+  padding: .4em .6em;
+  border: 2px solid var(--line);
+  border-radius: 16px;
+  background: var(--surface);
+  cursor: text;
+}
+
+.pills:focus-within {
+  outline: 3px solid var(--leaf);
+  outline-offset: 1px;
+  border-color: var(--leaf);
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: .3em;
+  padding: .15em .4em .15em .9em;
+  border-radius: var(--radius-sm);
+  background: var(--grad-mid);
+  color: var(--white);
+  font-weight: 700;
+  font-size: .95rem;
+}
+
+.pill button {
+  display: grid;
+  place-items: center;
+  width: 1.4em;
+  height: 1.4em;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, .25);
+  color: var(--white);
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.pill button:hover {
+  background: rgba(255, 255, 255, .45);
+}
+
+.form .pills input.pills-input {
+  flex: 1 1 8ch;
+  width: auto;
+  min-width: 8ch;
+  padding: .35em .3em;
+  border: 0;
+  border-radius: 0;
+  outline: none;
+  background: transparent;
+}
+
+/* Pill-style radio / checkbox choices */
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem;
+}
+
+.chips label {
+  position: relative;
+  margin: 0;
+  cursor: pointer;
+}
+
+.chips input {
+  position: absolute;
+  opacity: 0;
+  inset: 0;
+}
+
+.chips span {
+  display: inline-block;
+  padding: .45em 1.1em;
+  border-radius: var(--radius-sm);
+  border: 2px solid var(--line);
+  font-weight: 700;
+  background: var(--surface);
+}
+
+.chips input:checked+span {
+  background: var(--grad-mid);
+  color: var(--white);
+  border-color: transparent;
+}
+
+.chips input:focus-visible+span {
+  outline: 3px solid var(--leaf);
+  outline-offset: 2px;
+}
+
+/* Banner shown on the found form when reporting a match for a lost pet */
+.match-banner {
+  display: block;
+  width: 100%;
+  max-width: none;
+  box-sizing: border-box;
+  margin: 0 0 1.25rem;
+  padding: .9rem 1.2rem;
+  border-radius: 20px;
+  border-left: 6px solid var(--leaf);
+  background: var(--mint);
+  font-weight: 700;
+}
+
+/* "Report sent" confirmation */
+.done {
+  text-align: center;
+}
+
+.done .actions {
+  justify-content: center;
+  margin-top: 1rem;
+}
+
+@media (max-width: 1000px) {
+  .form {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Selected species / size chip: clearly highlighted, with a check mark */
+.chips input:checked+span {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, .18);
+  transform: translateY(-1px);
+}
+
+.chips i {
+  font-style: normal;
+}
+
+/* "What kind of animal?" field, only shown for species = Other */
+.other-species[hidden] {
+  display: none;
+}
+
+/* Breed tag box waits until a species is chosen */
+.pills.is-disabled {
+  opacity: .55;
+  cursor: not-allowed;
+  background: var(--surface-tint);
+}
+
+.form textarea {
+  resize: none;
+  overflow-y: hidden;
+  box-sizing: border-box;
+  min-height: 3.2em;
+}
+
+/* ---------- Add pet report: choose lost or found ---------- */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.type-pick {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin: 1.25rem 0 1.5rem;
+  border: 0;
+  padding: 0;
+  min-width: 0;
+}
+
+.type-pick[hidden],
+.report-pane[hidden] {
+  display: none;
+}
+
+.type-pick label {
+  position: relative;
+  display: block;
+  cursor: pointer;
+}
+
+.type-pick input {
+  position: absolute;
+  opacity: 0;
+  inset: 0;
+}
+
+.type-card {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: 1rem;
+  align-items: center;
+  height: 100%;
+  padding: 1.1rem 1.4rem;
+  border: 2px solid #cfe8b8;
+  border-radius: var(--radius);
+  background: var(--white);
+  box-shadow: var(--shadow);
+  transition: transform .15s ease, border-color .15s ease, box-shadow .15s ease;
+}
+
+.type-card svg {
+  grid-row: 1 / span 2;
+  width: 2.6rem;
+  height: 2.6rem;
+  padding: .6rem;
+  border-radius: 50%;
+  background: var(--mint);
+  fill: none;
+  stroke: var(--forest);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.type-card b {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+}
+
+.type-card small {
+  color: var(--muted);
+  font-weight: 600;
+  font-size: .95rem;
+}
+
+.type-pick input:focus-visible+.type-card {
+  outline: 3px solid var(--leaf);
+  outline-offset: 3px;
+}
+
+@media (max-width: 700px) {
+  .type-pick {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+/* Nothing chosen yet: the two cards sit in the middle of the page */
+main.is-choosing {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 80vh;
+  text-align: center;
+}
+
+main.is-choosing .view-head h1 {
+  margin-inline: auto;
+}
+
+main.is-choosing .type-pick {
+  width: 100%;
+  max-width: 820px;
+  gap: 1.5rem;
+  margin: 2rem auto 0;
+}
+
+main.is-choosing .type-card {
+  grid-template-columns: 1fr;
+  justify-items: center;
+  row-gap: .5rem;
+  padding: 2.25rem 1.5rem;
+}
+
+main.is-choosing .type-card svg {
+  grid-row: auto;
+  width: 4rem;
+  height: 4rem;
+  padding: 1rem;
+  margin-bottom: .4rem;
+}
+
+main.is-choosing .type-card b {
+  font-size: 1.5rem;
+}
+
+
+/* ---------- Report type cards: calm and neutral ----------
+   Lost keeps a soft red, found keeps the brand green, so the two stay easy to tell apart.
+   Hover = the card rises and the icon fills with its color. Selected = colored border and a solid icon.
+   The card itself stays white: no tinted fill, no glow ring, no check badge, no icon scaling. */
+.type-card {
+  --tone: var(--forest);
+  --tone-soft: var(--mint);
+  --tone-ring: rgba(15, 107, 63, .14);
+  --on-tone: #fff;
+  border: 2px solid #e3ece0;
+  background: var(--white);
+  box-shadow: 0 2px 10px rgba(15, 107, 63, .06);
+  transition: transform .25s cubic-bezier(.2, .8, .3, 1.2), border-color .18s ease, box-shadow .25s ease, background .18s ease, opacity .2s ease, filter .2s ease;
+}
+
+.type-card--lost {
+  --tone: #d94141;
+  --tone-soft: #fdeeee;
+  --tone-ring: rgba(217, 65, 65, .13);
+}
+
+.type-card--found {
+  --tone: var(--forest);
+  --tone-soft: var(--mint);
+  --tone-ring: rgba(15, 107, 63, .14);
+}
+
+.type-card svg {
+  background: var(--tone-soft);
+  stroke: var(--tone);
+  transition: background .2s ease, stroke .2s ease;
+}
+
+.type-card b {
+  color: var(--ink);
+}
+
+/* hover and keyboard focus */
+.type-pick label:hover .type-card,
+.type-pick input:focus-visible+.type-card {
+  transform: translateY(-4px);
+  border-color: var(--tone);
+  box-shadow: 0 14px 28px -8px var(--tone-ring), 0 4px 10px rgba(15, 40, 25, .06);
+}
+
+.type-pick label:hover .type-card svg,
+.type-pick input:focus-visible+.type-card svg {
+  background: var(--tone);
+  stroke: var(--on-tone);
+}
+
+.type-pick label:active .type-card {
+  transform: translateY(-1px) scale(.992);
+  transition-duration: .08s;
+}
+
+.type-pick input:focus-visible+.type-card {
+  outline: 3px solid var(--leaf);
+  outline-offset: 3px;
+}
+
+/* selected */
+.type-pick input:checked+.type-card {
+  border-color: var(--tone);
+  background: var(--white);
+  box-shadow: 0 4px 14px var(--tone-ring);
+}
+
+.type-pick input:checked+.type-card svg {
+  background: var(--tone);
+  stroke: var(--on-tone);
+}
+
+/* once a type is chosen, the other card is visibly "off": faded, desaturated and flat.
+   It stays fully clickable and wakes up on hover. */
+.type-pick:has(input:checked) label:not(:has(input:checked)) .type-card {
+  opacity: .68;
+  filter: saturate(.5);
+  box-shadow: none;
+}
+
+.type-pick:has(input:checked) label:not(:has(input:checked)):hover .type-card,
+.type-pick:has(input:checked) label:not(:has(input:checked)) input:focus-visible+.type-card {
+  opacity: 1;
+  filter: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+  .type-card,
+  .type-card svg {
+    transition: none;
+  }
+
+  .type-pick label:hover .type-card,
+  .type-pick label:active .type-card,
+  .type-pick input:focus-visible+.type-card {
+    transform: none;
+  }
+}
+
+
+/* ---------- Report form split into numbered steps ---------- */
+.form.steps {
+  grid-template-columns: 1fr;      /* one step card per row */
+  gap: 1.25rem;
+}
+
+.step {
+  padding: clamp(1rem, 2.4vw, 1.6rem);
+  border: 2px solid #e3ece0;
+  border-radius: 24px;
+  background: #fafdf6;
+}
+
+.step-head {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px dashed #dcebd0;
+}
+
+.step-num {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 2.6rem;
+  height: 2.6rem;
+  border-radius: 50%;
+  background: var(--grad-mid);
+  color: var(--white);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.25rem;
+  box-shadow: 0 4px 10px rgba(15, 107, 63, .3);
+}
+
+.step-eyebrow {
+  display: block;
+  color: var(--leaf);
+  font-weight: 800;
+  font-size: .75rem;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.step-head h2 {
+  margin: 0;
+  font-size: 1.3rem;
+  line-height: 1.2;
+}
+
+.step-head p {
+  margin: .15rem 0 0;
+  color: var(--muted);
+  font-weight: 600;
+  font-size: .95rem;
+}
+
+/* the fields inside a step keep the old two-column layout */
+.step-body {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.1rem 1.25rem;
+}
+
+.step-body>* {
+  min-width: 0;
+}
+
+@media (max-width: 1000px) {
+  .step-body {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .step-head {
+    align-items: flex-start;
+    gap: .75rem;
+  }
+
+  .step-num {
+    width: 2.2rem;
+    height: 2.2rem;
+    font-size: 1.05rem;
+  }
+}
+
+
+/* ---------- Step-by-step wizard: one step at a time, like Google Forms ---------- */
+.step[hidden] {
+  display: none;
+}
+
+.wizard-progress {
+  margin-bottom: .25rem;
+}
+
+/* Stepper: numbered circles joined by a line. The line between two circles fills in once the earlier step is done. */
+.wp-dots {
+  display: flex;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.wp-dots li {
+  position: relative;
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+/* grey track from the middle of the previous circle to the middle of this one */
+.wp-dots li + li::before,
+.wp-dots li + li::after {
+  content: "";
+  position: absolute;
+  top: calc(.95rem - 2px);          /* vertical middle of the circles (1.9rem tall) */
+  left: -50%;
+  width: 100%;
+  height: 4px;
+  border-radius: 999px;
+}
+
+.wp-dots li + li::before {
+  background: #e3ece0;
+}
+
+/* green fill, grows left to right when the previous step is complete */
+.wp-dots li + li::after {
+  background: var(--grad-bright);
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform .35s ease;
+}
+
+.wp-dots li.is-linked::after {
+  transform: scaleX(1);
+}
+
+.wp-dot {
+  position: relative;
+  z-index: 1;                       /* circles sit on top of the lines */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .4rem;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--muted);
+  font: inherit;
+  font-size: .8rem;
+  font-weight: 700;
+  text-align: center;
+  cursor: pointer;
+}
+
+.wp-dot b {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  flex: none;
+  width: 1.9rem;
+  height: 1.9rem;
+  border-radius: 50%;
+  border: 2px solid #cfe8b8;
+  background: var(--white);
+  font-family: var(--font-display);
+  font-size: .95rem;
+  transition: background .2s ease, color .2s ease, border-color .2s ease, box-shadow .2s ease;
+}
+
+.wp-dot span {
+  max-width: 100%;
+  padding-inline: .25rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wp-dot.is-done b {
+  background: var(--leaf);
+  border-color: var(--leaf);
+  color: var(--white);
+  font-size: 0;                     /* hide the number, show a check mark instead */
+}
+
+.wp-dot.is-done b::before {
+  content: "";
+  flex: none;
+  display: block;
+  width: .95rem;
+  height: .95rem;
+  transform: translateY(.5px);
+  background: currentColor;         /* drawn as a shape so it is truly centered (a text glyph sits off-center) */
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+.wp-dot.is-current {
+  color: var(--forest);
+}
+
+.wp-dot.is-current b {
+  background: var(--grad-mid);
+  border-color: transparent;
+  color: var(--white);
+  box-shadow: 0 4px 10px rgba(15, 107, 63, .3);
+}
+
+/* Back on the left, Next / Submit on the right */
+.wizard-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.wizard-nav .wiz-next,
+.wizard-nav .wiz-submit {
+  margin-left: auto;
+}
+
+.wizard-nav .btn {
+  min-width: 7.5rem;
+  text-align: center;
+}
+
+.step-head h2:focus {
+  outline: none;
+}
+
+.form-note.err:empty {
+  display: none;
+}
+
+@media (max-width: 600px) {
+  .wp-dot span {
+    display: none;     /* only the numbers fit on a phone */
+  }
+
+  .wizard-nav .btn {
+    flex: 1 1 0;
+  }
+}
+
+
+/* Dark theme: keep the "choose a species first" hint readable while the box is inactive */
+:root[data-theme="dark"] .pills.is-disabled { opacity: .85; }
+
+/* ---------- Dark theme: Add pet report ----------
+   The cards, steps and progress bar used fixed light colors; point them at the theme tokens. */
+:root[data-theme="dark"] .type-card {
+  --tone: #5fcf86;
+  --tone-soft: rgba(95, 207, 134, .14);
+  --tone-ring: rgba(95, 207, 134, .18);
+  --on-tone: var(--page);   /* dark glyph on the light solid icon keeps contrast */
+  border-color: var(--line);
+  background: var(--surface);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, .35);
+}
+
+:root[data-theme="dark"] .type-card--lost {
+  --tone: #ff8f85;
+  --tone-soft: rgba(255, 143, 133, .14);
+  --tone-ring: rgba(255, 143, 133, .18);
+}
+
+:root[data-theme="dark"] .type-card--found {
+  --tone: #5fcf86;
+}
+
+:root[data-theme="dark"] .type-pick input:checked+.type-card {
+  background: var(--surface);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, .4);
+}
+
+:root[data-theme="dark"] .step {
+  border-color: var(--line-soft);
+  background: var(--surface-tint);
+}
+
+:root[data-theme="dark"] .step-head {
+  border-bottom-color: var(--line);
+}
+
+:root[data-theme="dark"] .wp-dots li + li::before {
+  background: var(--line-soft);
+}
+
+:root[data-theme="dark"] .wp-dot b {
+  border-color: var(--line);
+  background: var(--surface);
+}
+
+:root[data-theme="dark"] .wp-dot.is-done b {
+  background: var(--leaf);
+  border-color: var(--leaf);
+  color: var(--white);
+}
+
+:root[data-theme="dark"] .wp-dot.is-current {
+  color: var(--heading);
+}
+
+:root[data-theme="dark"] .wp-dot.is-current b {
+  color: var(--white);
+}
+
+:root[data-theme="dark"] .step-eyebrow {
+  color: var(--leaf-text);
+}
+
+/* ---------- Green gradient shapes ----------
+   A gradient starts at the padding box by default and repeats into a transparent border, which draws a ring or
+   strip around circles, chips and buttons. Start it at the outer edge and never repeat it, so it fills the shape
+   exactly. These come last so they win over the `background:` shorthands above. */
+.chips input:checked+span,
+.wp-dot.is-current b,
+.step-num,
+.pill,
+.form .drop .upload-action,
+.file-main {
+  background-origin: border-box;
+  background-repeat: no-repeat;
+  background-clip: border-box;
+}
+
+/* Centered content: the number or label sits exactly in the middle of its circle / pill */
+.step-num,
+.wp-dot b {
+  line-height: 1;
+}
+
+.chips span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Buttons that sit side by side get the same height, so their labels line up */
+.wizard-nav .btn,
+.done .actions .btn {
+  min-height: 3rem;
+}
+
+/* ---------- "About your pet" step: grouped sections, one radius scale ----------
+   Radius scale (outer to inner, each shape is a little rounder than what it sits inside):
+     step card 24px  >  controls (inputs, tag box, menu) 14px  >  tags and menu options 8px
+   Choice chips are buttons, so they are fully round (pill) like the Back / Next buttons.
+   Fully round shapes (the step number, the remove button on a tag) stay circles. */
+.step-about {
+  --r-control: 14px;
+  --r-tag: 8px;
+  --ctl-h: 3.25rem;
+}
+
+/* The step body becomes a stack of titled groups instead of one long grid */
+.step-about .about-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.about-group {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  padding-block: 1.5rem;
+  border-top: 1px solid var(--line-soft);
+}
+
+.about-group:first-child {
+  padding-top: 0;
+  border-top: 0;
+}
+
+.about-group:last-child {
+  padding-bottom: 0;
+}
+
+.about-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: start;
+  gap: 1.15rem 1.25rem;
+  min-width: 0;
+}
+
+.about-fields > * {
+  min-width: 0;
+}
+
+.step-about .form label,
+.step-about .form legend,
+.step-about label,
+.step-about legend {
+  margin-bottom: .45rem;
+  font-size: .92rem;
+}
+
+/* Text boxes and the tag box: same height, same radius */
+.step-about .about-fields input[type=text],
+.step-about .about-fields .pills {
+  box-sizing: border-box;
+  min-height: var(--ctl-h);
+  border-radius: var(--r-control);
+}
+
+.step-about .about-fields .pills {
+  padding: .25em .5em;
+}
+
+/* The typing area shrinks so it stays on the same line as the first tag and the box keeps one height */
+.step-about .about-fields .pills input.pills-input {
+  flex: 1 1 5ch;
+  min-width: 5ch;
+  text-overflow: ellipsis;
+}
+
+/* Tags sit inside the box, so they are rounded to match its corners */
+.step-about .pill {
+  border-radius: var(--r-tag);
+}
+
+/* Choice chips: equal-width segments, fully rounded like the Back / Next buttons */
+.step-about .chips {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: .6rem;
+}
+
+.step-about .chips label {
+  min-width: 0;
+}
+
+.step-about .chips span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .45em;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: var(--ctl-h);
+  padding: .45em .4em;
+  border-radius: var(--radius-sm);
+  text-align: center;
+}
+
+.step-about .chips i {
+  display: inline-flex;
+  font-style: normal;
+  line-height: 1;
+}
+
+.step-about .chips i svg {
+  width: 1.25em;
+  height: 1.25em;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.step-about .chips input:checked+span {
+  box-shadow: 0 3px 10px rgba(15, 107, 63, .25);
+}
+
+/* Autocomplete menu: rounded like the controls, options nested inside it */
+.step-about .pills-options {
+  padding: .35rem;
+  border-radius: var(--r-control);
+}
+
+.step-about .pills-option {
+  border-radius: var(--r-tag);
+}
+
+.step-about .about-lock-note {
+  border-radius: var(--r-control);
+}
+
+@media (max-width: 1000px) {
+  .about-group {
+    grid-template-columns: 1fr;
+    gap: .9rem;
+    padding-block: 1.25rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .about-fields {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .step-about {
+    --ctl-h: 3rem;
+  }
+
+  .step-about .chips {
+    gap: .45rem;
+  }
+
+  .step-about .chips span {
+    padding-inline: .3em;
+    font-size: .92rem;
+  }
+}
+
+/* ---------- Hover effects inside the form ---------- */
+.form input[type=text],
+.form input[type=date],
+.form input[type=url],
+.form select,
+.form textarea,
+.pills,
+.chips span,
+.wp-dot b,
+.pill {
+  transition: border-color .18s ease, box-shadow .18s ease, background .18s ease, transform .18s ease;
+}
+
+.form input[type=text]:not(.is-invalid):hover,
+.form input[type=date]:not(.is-invalid):hover,
+.form input[type=url]:not(.is-invalid):hover,
+.form select:not(.is-invalid):hover,
+.form textarea:not(.is-invalid):hover,
+.pills:not(.is-disabled):hover {
+  border-color: var(--leaf);
+  box-shadow: 0 0 0 3px rgba(47, 160, 90, .12);
+}
+
+.chips label:hover input:not(:checked)+span {
+  border-color: var(--leaf);
+  background: var(--surface-tint);
+  transform: translateY(-1px);
+}
+
+.chips label:hover input:checked+span {
+  box-shadow: 0 6px 16px rgba(15, 107, 63, .28);
+}
+
+.pill:hover {
+  transform: translateY(-1px);
+}
+
+.wp-dot:hover b {
+  border-color: var(--leaf);
+  box-shadow: 0 0 0 4px rgba(47, 160, 90, .15);
+}
+
+.wizard-nav .btn {
+  transition: transform .18s ease, filter .18s ease, box-shadow .18s ease;
+}
+
+.wizard-nav .btn:hover {
+  transform: translateY(-2px);
+  filter: brightness(.96);
+}
+
+.wizard-nav .btn:active {
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chips label:hover input:not(:checked)+span,
+  .pill:hover,
+  .wizard-nav .btn:hover {
+    transform: none;
+  }
+}
+
+/* Read-only pet identity when a finder responds to an existing lost report. */
+.step-about.is-locked .step-body {
+  opacity: .78;
+}
+.step-about.is-locked .step-body input:disabled,
+.step-about.is-locked .step-body textarea:disabled,
+.step-about.is-locked .step-body select:disabled {
+  cursor: not-allowed;
+}
+.step-about.is-locked .step-body .chips label,
+.step-about.is-locked .step-body .pills {
+  cursor: not-allowed;
+}
+.about-lock-note {
+  margin: .85rem 0 0;
+  padding: .75rem 1rem;
+  border: 1px solid var(--line, #cfe5c8);
+  border-radius: 12px;
+  background: var(--mint);
+  color: var(--ink, #174b35);
+  font-size: .9rem;
+  line-height: 1.5;
+}
+
+
+/* Styled autocomplete menus for breed and color comboboxes */
+.pills { position: relative; }
+.pills-options {
+  position: absolute; z-index: 100; top: calc(100% + 7px); left: 0; right: 0;
+  max-height: 230px; overflow-y: auto; padding: .4rem;
+  border: 1px solid var(--line, #dce8df); border-radius: 14px;
+  background: var(--white, #fff); box-shadow: 0 12px 30px rgba(20, 55, 35, .16);
+}
+.pills-options[hidden] { display: none; }
+.pills-option {
+  display: block; width: 100%; padding: .65rem .8rem; border: 0; border-radius: 9px;
+  background: transparent; color: var(--ink, #173b2b); text-align: left; font: inherit; cursor: pointer;
+  transition: background .15s ease, color .15s ease;
+}
+.pills-option:hover, .pills-option.is-active { background: var(--mint, #eaf5ed); color: var(--forest, #174b35); }
+.pills-option:focus-visible { outline: 2px solid var(--leaf, #4c9b63); outline-offset: -2px; }
+
+/* Tag boxes (Breed, Main color): the container draws the border and focus ring,
+   so the typing area inside must never draw its own outline, border or shadow
+   (otherwise a second ring shows inside the box on hover / focus). */
+.form .pills input.pills-input[type=text],
+.form .pills input.pills-input[type=text]:hover,
+.form .pills input.pills-input[type=text]:focus,
+.form .pills input.pills-input[type=text]:focus-visible,
+.step-about .about-fields .pills input.pills-input[type=text],
+.step-about .about-fields .pills input.pills-input[type=text]:hover,
+.step-about .about-fields .pills input.pills-input[type=text]:focus,
+.step-about .about-fields .pills input.pills-input[type=text]:focus-visible {
+  border: 0;
+  border-radius: 0;
+  outline: none;
+  box-shadow: none;
+  background: transparent;
+  min-height: 0;
+}
+
+/* ---------- Shake a field that is invalid or incomplete (stays red via .is-invalid) ---------- */
+.is-shaking {
+  animation: field-shake .4s cubic-bezier(.36, .07, .19, .97) both;
+}
+
+@keyframes field-shake {
+  10%, 90% { transform: translateX(-1px); }
+  20%, 80% { transform: translateX(2px); }
+  30%, 50%, 70% { transform: translateX(-4px); }
+  40%, 60% { transform: translateX(4px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .is-shaking { animation: none; }
+}
+
+/* "Mixed breed" tag that is added automatically (no remove button) */
+.pill--auto {
+  padding-right: .9em;
+}
+
+/* ---------- Size guide (hint, toggle button and panel under the Size chips) ---------- */
+.size-help {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .4rem .9rem;
+  margin-top: .65rem;
+}
+
+.size-guide-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: .4em;
+  padding: .3em .85em .3em .6em;
+  border: 2px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--forest);
+  font: inherit;
+  font-size: .9rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: border-color .18s ease, background .18s ease;
+}
+
+.size-guide-toggle:hover {
+  border-color: var(--leaf);
+  background: var(--surface-tint);
+}
+
+.size-guide-toggle:focus-visible {
+  outline: 3px solid var(--leaf);
+  outline-offset: 2px;
+}
+
+.size-guide-toggle svg {
+  width: 1.15em;
+  height: 1.15em;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.size-guide-toggle[aria-expanded="true"] {
+  background: var(--mint);
+  border-color: var(--leaf);
+}
+
+:root[data-theme="dark"] .size-guide-toggle {
+  color: var(--leaf-text);
+}
+
+.size-hint {
+  color: var(--ink);
+  font-size: .9rem;
+  font-weight: 600;
+}
+
+.size-hint:empty {
+  display: none;
+}
+
+.size-guide {
+  margin-top: .75rem;
+  padding: 1rem 1.1rem;
+  border: 1px solid var(--line);
+  border-radius: var(--r-control, 14px);
+  background: var(--surface-tint);
+}
+
+.size-guide[hidden] {
+  display: none;
+}
+
+.size-guide-title {
+  margin: 0 0 .6rem;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.size-guide-note {
+  margin: -.25rem 0 .7rem;
+  font-size: .88rem;
+  color: var(--ink);
+  opacity: .8;
+}
+
+.size-guide-list {
+  display: grid;
+  gap: .5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.size-guide-list li {
+  display: grid;
+  grid-template-columns: 5.5rem minmax(0, 1fr);
+  gap: .75rem;
+  align-items: start;
+  padding: .7rem .85rem;
+  border: 2px solid transparent;
+  border-radius: var(--r-tag, 8px);
+  background: var(--surface);
+  color: var(--ink);
+}
+
+.size-guide-list li.is-picked {
+  border-color: var(--leaf);
+  background: var(--mint);
+}
+
+.size-guide-list strong {
+  font-family: var(--font-display, inherit);
+  font-size: 1rem;
+}
+
+.size-guide-list li > span {
+  display: grid;
+  gap: .1rem;
+  min-width: 0;
+  font-size: .92rem;
+}
+
+.size-guide-list b {
+  font-weight: 700;
+}
+
+.size-guide-list em {
+  font-style: normal;
+}
+
+.size-guide-list small {
+  font-size: .85rem;
+  opacity: .8;
+}
+
+.size-guide-tip {
+  margin: .8rem 0 0;
+  font-size: .86rem;
+  line-height: 1.45;
+  color: var(--ink);
+  opacity: .85;
+}
+
+@media (max-width: 480px) {
+  .size-guide {
+    padding: .85rem .8rem;
+  }
+
+  .size-guide-list li {
+    grid-template-columns: 4.4rem minmax(0, 1fr);
+    gap: .55rem;
+  }
+}

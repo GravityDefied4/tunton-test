@@ -1,0 +1,396 @@
+/* All reports view */
+/* Header: title on the left, result count on the right */
+.view-head--reports {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.75rem;
+}
+
+.view-head--reports h1 { margin-bottom: .35rem; }
+.view-head--reports p { margin: 0; }
+.rcount { flex: none; font-weight: 700; color: var(--muted); }
+
+/* One tidy row: search, type, species */
+.toolbar--reports {
+  gap: .75rem 1rem;
+  margin: 0 0 1.5rem;
+}
+
+.rsearch {
+  flex: 1 1 280px;
+  min-width: 0;
+  padding: .7em 1.2em;
+  border: 2px solid transparent;
+  border-radius: var(--radius-sm);
+  font: inherit;
+  font-weight: 600;
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: var(--shadow);
+}
+
+.rsearch:focus {
+  outline: 0;
+  border-color: var(--leaf);
+}
+
+/* Type filter: one soft pill with the active option filled in */
+.toolbar--reports .chips {
+  flex-wrap: nowrap;
+  gap: .25rem;
+  padding: .25rem;
+  background: var(--surface);
+  border-radius: 999px;
+  box-shadow: var(--shadow);
+}
+
+.toolbar--reports .chips span {
+  padding: .45em 1.1em;
+  border: 0;
+  background: transparent;
+  font-size: .92rem;
+}
+
+.toolbar--reports .chips label:hover span { background: var(--surface-hover); }
+.toolbar--reports .chips input:checked+span { background: var(--forest-dark); color: var(--white); }
+
+.rselect {
+  padding: .65em 1em;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+  font-weight: 700;
+  font-size: .92rem;
+  box-shadow: var(--shadow);
+}
+
+.rempty {
+  grid-column: 1 / -1;
+  margin: 0;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+/* All reports uses the same card as the home page (.pet-list--grid in style.css) */
+#all-list {
+  margin-top: 0;
+}
+
+/* All Reports: as many cards per row as fit, but never narrower than ~290px
+   (about three per row on a normal desktop, two on tablets, one on phones). */
+#all-list.pet-list--grid {
+  grid-template-columns: repeat(auto-fill, minmax(min(290px, 100%), 1fr));
+  gap: clamp(.875rem, 1.3vw, 1.25rem);
+}
+
+.tag-found {
+  background: var(--leaf);
+}
+
+/* =========================================================
+   Report card (All reports page only, scoped to #all-list)
+   Smaller than the home page card: shorter photo, tighter padding and type.
+   ========================================================= */
+#all-list .pet-thumb {
+  aspect-ratio: 16 / 10;
+  min-height: 0;
+  overflow: hidden;
+}
+
+#all-list .pet-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+#all-list .tag-missing {
+  top: 10px;
+  left: 10px;
+  font-size: .78rem;
+  padding: .3em .85em .3em .7em;
+}
+
+#all-list .pet-body {
+  gap: .4rem;
+  padding: 1rem 1.15rem .75rem;
+}
+
+#all-list .pet-body h3 {
+  font-size: 1.2rem;
+  line-height: 1.25;
+}
+
+#all-list .pet-info {
+  gap: .2rem;
+  padding: 0;
+  font-size: .9rem;
+  line-height: 1.35;
+}
+
+#all-list .pet-info li {
+  display: flex;
+  align-items: flex-start;
+  gap: .5rem;
+}
+
+#all-list .pet-info .ico {
+  flex: none;
+  width: 1rem;
+  height: 1rem;
+  margin-top: .2em;
+  color: var(--leaf-text);
+}
+
+/* Reporter: pinned to the bottom of the body so it lines up across a row of cards */
+#all-list .pet-by {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  width: 100%;
+  margin: auto 0 0;
+  padding-top: .65rem;
+  border-top: 1px solid var(--line-soft);
+  font-size: .85rem;
+  color: var(--muted);
+}
+
+#all-list .pet-by-av {
+  position: relative;
+  overflow: hidden;
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 1.9rem;
+  height: 1.9rem;
+  border-radius: 50%;
+  background: var(--mint);
+  color: var(--heading);
+  font: 700 .8rem/1 var(--font-display);
+}
+
+/* Profile picture sits on top of the initial, which stays as the fallback */
+#all-list .pet-by-av img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+#all-list .pet-by-text {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#all-list .pet-by-text b {
+  color: var(--ink);
+}
+
+/* Footer: always one row with two slots, so every card ends the same way.
+   Left  = View details (quiet outline button)
+   Right = main action (yellow button) or, when there is none, a status label. */
+#all-list .pet-actions {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: .4rem;
+  padding: .25rem 1rem 1rem;
+}
+
+#all-list .pet-actions > .btn,
+#all-list .pet-actions > .pet-status {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.5rem;
+  margin: 0;
+  padding: 0 .75em;
+  font: 600 .86rem/1.1 var(--font-display);
+  text-align: center;
+  white-space: nowrap;
+}
+
+#all-list .pet-actions > .pet-status {
+  border: 2px solid transparent;
+  border-radius: var(--radius-sm);
+  background: var(--surface-tint);
+  color: var(--muted);
+  cursor: default;
+}
+
+#all-list .pet-actions > .pet-status--found {
+  background: rgba(47, 160, 90, .14);
+  color: var(--heading);
+}
+
+/* The "View details" outline button fills in on hover / keyboard focus */
+#all-list .pet-actions > .btn-plain {
+  transition: transform .15s ease, background-color .2s ease, color .2s ease, border-color .2s ease;
+}
+
+/* Same hover as before. The gradient is set with longhands (not the `background:` shorthand) so it
+   keeps starting at the outer edge of the border and does not leave a strip on the sides. */
+#all-list .pet-actions > .btn-plain:hover,
+#all-list .pet-actions > .btn-plain:focus-visible {
+  background-image: var(--grad-mid);
+  background-origin: border-box;
+  background-repeat: no-repeat;
+  border-color: transparent;
+  color: var(--white);
+}
+
+/* Icon inside the status label (✓ Pet found) */
+#all-list .pet-status .ico {
+  width: 1rem;
+  height: 1rem;
+  margin-right: .4em;
+  flex: none;
+}
+
+/* Whole card opens the report: the "View details" link stretches over the card.
+   The yellow action button sits above that layer, so it still goes to its own page. */
+#all-list .pet-card {
+  position: relative;
+  cursor: pointer;
+}
+
+#all-list .pet-actions > .btn-plain::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: inherit;
+}
+
+#all-list .pet-actions > .btn-sun,
+#all-list .pet-actions > .btn-edit {
+  position: relative;
+  z-index: 2;
+}
+
+
+/* No lift on the link itself (a transform would shrink the clickable layer to the button) */
+#all-list .pet-actions > .btn-plain:hover {
+  transform: none;
+}
+
+/* Keyboard focus: ring the whole card, since the whole card is the target */
+#all-list .pet-card:has(.btn-plain:focus-visible) {
+  outline: 3px solid var(--leaf);
+  outline-offset: 3px;
+}
+
+/* Cards fade up one after another when a list finishes loading */
+#all-list.is-fresh .pet-card {
+  animation: card-in .45s cubic-bezier(.2, .7, .2, 1) backwards;
+}
+
+#all-list.is-fresh .pet-card:nth-child(2) { animation-delay: .05s; }
+#all-list.is-fresh .pet-card:nth-child(3) { animation-delay: .1s; }
+#all-list.is-fresh .pet-card:nth-child(4) { animation-delay: .15s; }
+#all-list.is-fresh .pet-card:nth-child(5) { animation-delay: .2s; }
+#all-list.is-fresh .pet-card:nth-child(n+6) { animation-delay: .25s; }
+
+@keyframes card-in {
+  from { opacity: 0; transform: translateY(14px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #all-list.is-fresh .pet-card { animation: none; }
+}
+
+
+/* =========================================================
+   Phones: compact report cards
+   The photo moves to the left (small square), details sit beside it and the
+   buttons run along the bottom, so a card is about a third of its old height.
+   ========================================================= */
+@media (max-width: 640px) {
+  .view-head--reports { margin-bottom: 1rem; align-items: flex-start; }
+  .view-head--reports h1 { font-size: 1.6rem; margin-bottom: .15rem; }
+  .view-head--reports p { font-size: .88rem; }
+  .rcount { font-size: .85rem; padding-top: .35rem; }
+
+  /* Search on its own row; type filter + species share the next one */
+  .toolbar--reports { gap: .6rem; margin-bottom: 1rem; }
+  .rsearch { flex: 1 1 100%; padding: .6em 1.1em; font-size: .95rem; }
+  .toolbar--reports .chips { flex: 1 1 auto; justify-content: space-between; }
+  .toolbar--reports .chips label { flex: 1; }
+  .toolbar--reports .chips span { display: block; padding: .4em .5em; text-align: center; font-size: .86rem; }
+  .rselect { flex: 0 1 auto; max-width: 48%; padding: .55em .8em; font-size: .86rem; }
+
+  #all-list.pet-list--grid { grid-template-columns: minmax(0, 1fr); gap: .7rem; }
+
+  #all-list .pet-card {
+    width: 100%;
+    margin: 0;
+    display: grid;
+    grid-template-columns: 104px minmax(0, 1fr);
+    grid-template-areas: "thumb body" "actions actions";
+    border-radius: 16px;
+  }
+  #all-list .pet-card:hover { transform: none; }
+
+  #all-list .pet-thumb {
+    grid-area: thumb;
+    width: 100%;
+    height: 100%;
+    min-height: 104px;
+    aspect-ratio: auto;
+  }
+  #all-list .pet-thumb::after { display: none; }
+
+  /* Status tag becomes a small pill on the photo corner */
+  #all-list .tag-missing {
+    top: 6px;
+    left: 6px;
+    gap: .35em;
+    padding: .2em .6em .2em .5em;
+    font-size: .62rem;
+    letter-spacing: .05em;
+  }
+  #all-list .tag-dot { width: 6px; height: 6px; }
+
+  #all-list .pet-body {
+    grid-area: body;
+    justify-content: flex-start;
+    gap: .25rem;
+    padding: .7rem .85rem .35rem;
+  }
+  #all-list .pet-body h3 {
+    font-size: 1.02rem;
+    line-height: 1.2;
+    overflow-wrap: anywhere;
+  }
+  #all-list .pet-info { font-size: .8rem; gap: .12rem; }
+  #all-list .pet-info .ico { width: .9rem; height: .9rem; }
+
+  /* Reporter line is secondary on a phone: keep it, but small and unframed */
+  #all-list .pet-by { padding-top: .35rem; font-size: .78rem; border-top: 0; }
+  #all-list .pet-by-av { width: 1.45rem; height: 1.45rem; font-size: .7rem; }
+
+  #all-list .pet-actions {
+    grid-area: actions;
+    padding: .2rem .75rem .75rem;
+  }
+  #all-list .pet-actions > .btn,
+  #all-list .pet-actions > .pet-status {
+    min-height: 2.25rem;
+    font-size: .82rem;
+    white-space: normal;
+  }
+}
+
+@media (max-width: 380px) {
+  #all-list .pet-card { grid-template-columns: 88px minmax(0, 1fr); }
+  #all-list .pet-thumb { min-height: 88px; }
+  #all-list .pet-body h3 { font-size: .98rem; }
+  #all-list .pet-actions { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+}
